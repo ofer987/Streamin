@@ -1,0 +1,5 @@
+"dependences": {
+  "Streamin": "1.0.0",
+  "xunit": "2.1.0",
+  "dotnet-test-xunit": "1.0.0"
+}

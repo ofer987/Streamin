@@ -1,0 +1,14 @@
+{
+  "generator-web": {
+    "appName": "LayBack",
+    "includeModernizr": true,
+    "includeUnderscore": true,
+    "includeFontAwesome": true,
+    "includeRespond": false,
+    "includeHtml5shiv": false
+  },
+  "generator-mocha": {
+    "ui": "tdd",
+    "rjs": false
+  }
+}
