@@ -12,21 +12,21 @@ namespace Streamer
             Stream = stream;
         }
 
-        public void Write(object data, string type)
+        public bool Write(object data, string type)
         {
             var message = $"type: {type}\ndata: {data}\n\n";
 
-            Write(message);
+            return Write(message);
         }
 
-        public void Write(object data)
+        public bool Write(object data)
         {
             var message = $"data: {data}\n\n";
 
-            Write(message);
+            return Write(message);
         }
 
-        private void Write(string message)
+        private bool Write(string message)
         {
             try
             {
@@ -38,8 +38,11 @@ namespace Streamer
             }
             catch(Exception)
             {
-                throw;
+                // Maybe log this?
+                return false;
             }
+
+            return true;
         }
     }
 }
