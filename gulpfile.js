@@ -1,15 +1,16 @@
-// generated on 2016-08-31 using generator-webapp 2.1.0
 const gulp = require('gulp');
 const gulpLoadPlugins = require('gulp-load-plugins');
 const browserSync = require('browser-sync');
 const del = require('del');
 const wiredep = require('wiredep').stream;
+const spawn = require('gulp-spawn');
+const run = require('gulp-run');
 
 const $ = gulpLoadPlugins();
 const reload = browserSync.reload;
 
 gulp.task('styles', () => {
-  return gulp.src('app/styles/*.scss')
+  return gulp.src('client/app/styles/*.scss')
     .pipe($.plumber())
     .pipe($.sourcemaps.init())
     .pipe($.sass.sync({
@@ -19,17 +20,17 @@ gulp.task('styles', () => {
     }).on('error', $.sass.logError))
     .pipe($.autoprefixer({browsers: ['> 1%', 'last 2 versions', 'Firefox ESR']}))
     .pipe($.sourcemaps.write())
-    .pipe(gulp.dest('.tmp/styles'))
+    .pipe(gulp.dest('client/.tmp/styles'))
     .pipe(reload({stream: true}));
 });
 
 gulp.task('scripts', () => {
-  return gulp.src('app/scripts/**/*.js')
+  return gulp.src('client/app/scripts/**/*.js')
     .pipe($.plumber())
     .pipe($.sourcemaps.init())
     .pipe($.babel())
     .pipe($.sourcemaps.write('.'))
-    .pipe(gulp.dest('.tmp/scripts'))
+    .pipe(gulp.dest('client/.tmp/scripts'))
     .pipe(reload({stream: true}));
 });
 
@@ -42,32 +43,32 @@ function lint(files, options) {
 }
 
 gulp.task('lint', () => {
-  return lint('app/scripts/**/*.js', {
+  return lint('client/app/scripts/**/*.js', {
     fix: true
   })
-    .pipe(gulp.dest('app/scripts'));
+    .pipe(gulp.dest('client/app/scripts'));
 });
 gulp.task('lint:test', () => {
-  return lint('test/spec/**/*.js', {
+  return lint('client/test/spec/**/*.js', {
     fix: true,
     env: {
       mocha: true
     }
   })
-    .pipe(gulp.dest('test/spec/**/*.js'));
+    .pipe(gulp.dest('client/test/spec/**/*.js'));
 });
 
 gulp.task('html', ['styles', 'scripts'], () => {
-  return gulp.src('app/*.html')
-    .pipe($.useref({searchPath: ['.tmp', 'app', '.']}))
+  return gulp.src('client/app/*.html')
+    .pipe($.useref({searchPath: ['client/.tmp', 'client/app', '.']}))
     .pipe($.if('*.js', $.uglify()))
     .pipe($.if('*.css', $.cssnano({safe: true, autoprefixer: false})))
     .pipe($.if('*.html', $.htmlmin({collapseWhitespace: true})))
-    .pipe(gulp.dest('dist'));
+    .pipe(gulp.dest('client/dist'));
 });
 
 gulp.task('images', () => {
-  return gulp.src('app/images/**/*')
+  return gulp.src('client/app/images/**/*')
     .pipe($.cache($.imagemin({
       progressive: true,
       interlaced: true,
@@ -75,49 +76,49 @@ gulp.task('images', () => {
       // as hooks for embedding and styling
       svgoPlugins: [{cleanupIDs: false}]
     })))
-    .pipe(gulp.dest('dist/images'));
+    .pipe(gulp.dest('client/dist/images'));
 });
 
 gulp.task('fonts', () => {
   return gulp.src(require('main-bower-files')('**/*.{eot,svg,ttf,woff,woff2}', function (err) {})
-    .concat('app/fonts/**/*'))
-    .pipe(gulp.dest('.tmp/fonts'))
-    .pipe(gulp.dest('dist/fonts'));
+    .concat('client/app/fonts/**/*'))
+    .pipe(gulp.dest('client/.tmp/fonts'))
+    .pipe(gulp.dest('client/dist/fonts'));
 });
 
 gulp.task('extras', () => {
   return gulp.src([
-    'app/*.*',
-    '!app/*.html'
+    'client/app/*.*',
+    '!client/app/*.html'
   ], {
     dot: true
-  }).pipe(gulp.dest('dist'));
+  }).pipe(gulp.dest('client/dist'));
 });
 
-gulp.task('clean', del.bind(null, ['.tmp', 'dist']));
+gulp.task('clean', del.bind(null, ['client/.tmp', 'dist']));
 
-gulp.task('serve', ['styles', 'scripts', 'fonts'], () => {
+gulp.task('serve:client', ['styles', 'scripts', 'fonts'], () => {
   browserSync({
     notify: false,
     port: 9000,
     server: {
-      baseDir: ['.tmp', 'app'],
+      baseDir: ['client/.tmp', 'client/app'],
       routes: {
-        '/bower_components': 'bower_components'
+        '/bower_components': 'client/bower_components'
       }
     }
   });
 
   gulp.watch([
-    'app/*.html',
-    'app/images/**/*',
-    '.tmp/fonts/**/*'
+    'client/app/*.html',
+    'client/app/images/**/*',
+    'client/.tmp/fonts/**/*'
   ]).on('change', reload);
 
-  gulp.watch('app/styles/**/*.scss', ['styles']);
-  gulp.watch('app/scripts/**/*.js', ['scripts']);
-  gulp.watch('app/fonts/**/*', ['fonts']);
-  gulp.watch('bower.json', ['wiredep', 'fonts']);
+  gulp.watch('client/app/styles/**/*.scss', ['styles']);
+  gulp.watch('client/app/scripts/**/*.js', ['scripts']);
+  gulp.watch('client/app/fonts/**/*', ['fonts']);
+  gulp.watch('client/bower.json', ['wiredep', 'fonts']);
 });
 
 gulp.task('serve:dist', () => {
@@ -136,39 +137,58 @@ gulp.task('serve:test', ['scripts'], () => {
     port: 9000,
     ui: false,
     server: {
-      baseDir: 'test',
+      baseDir: 'client/test',
       routes: {
-        '/scripts': '.tmp/scripts',
-        '/bower_components': 'bower_components'
+        '/scripts': 'client/.tmp/scripts',
+        '/bower_components': 'client/bower_components'
       }
     }
   });
 
-  gulp.watch('app/scripts/**/*.js', ['scripts']);
-  gulp.watch('test/spec/**/*.js').on('change', reload);
-  gulp.watch('test/spec/**/*.js', ['lint:test']);
+  gulp.watch('client/app/scripts/**/*.js', ['scripts']);
+  gulp.watch('client/test/spec/**/*.js').on('change', reload);
+  gulp.watch('client/test/spec/**/*.js', ['lint:test']);
 });
 
 // inject bower components
 gulp.task('wiredep', () => {
-  gulp.src('app/styles/*.scss')
+  gulp.src('client/app/styles/*.scss')
     .pipe(wiredep({
       ignorePath: /^(\.\.\/)+/
     }))
-    .pipe(gulp.dest('app/styles'));
+    .pipe(gulp.dest('client/app/styles'));
 
-  gulp.src('app/*.html')
+  gulp.src('client/app/*.html')
     .pipe(wiredep({
       exclude: ['bootstrap-sass'],
       ignorePath: /^(\.\.\/)*\.\./
     }))
-    .pipe(gulp.dest('app'));
+    .pipe(gulp.dest('client/app'));
 });
 
-gulp.task('build', ['lint', 'html', 'images', 'fonts', 'extras'], () => {
+gulp.task('build:client', ['lint', 'html', 'images', 'fonts', 'extras'], () => {
   return gulp.src('dist/**/*').pipe($.size({title: 'build', gzip: true}));
 });
 
-gulp.task('default', ['clean'], () => {
-  gulp.start('build');
+gulp.task('build:server', () => {
+  return run('dotnet restore server/src/ServerSent').exec(() => {
+    return run('dotnet restore server/src/Streamin').exec(() => {
+      return run('dotnet build server/src/Streamin').exec();
+    });
+  });
+});
+
+gulp.task('serve:server', () => {
+  return run('dotnet run -p ./server/src/Streamin').exec();
+  // return spawn({
+  //   cmd: 'dotnet run -p ./server/src/Streamin'
+  // });
+});
+
+gulp.task('serve', () => {
+  gulp.start('serve:server');
+  gulp.start('serve:client');
+});
+
+gulp.task('default', ['clean', 'build:client', 'build:server'], () => {
 });
