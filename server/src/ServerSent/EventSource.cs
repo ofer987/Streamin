@@ -1,7 +1,7 @@
 using System;
 using System.IO;
 
-namespace Streamer
+namespace ServerSent
 {
     public class EventSource
     {

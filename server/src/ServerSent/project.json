@@ -1,5 +1,5 @@
 {
-    "name": "Streamer",
+    "name": "ServerSent",
     "version": "1.0.0",
 
     "dependencies": {
@@ -14,7 +14,7 @@
     },
 
     "tooling": {
-        "defaultNamespace": "Streamer"
+        "defaultNamespace": "ServerSent"
     },
 
     "shared": "EventSource.cs, EventSourceAttribute.cs"

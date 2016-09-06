@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 
 using Streamin.Repositories;
 
-using Streamer;
+using ServerSent;
 
 namespace Streamin.Controllers
 {

@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc.Filters;
 
-namespace Streamer
+namespace ServerSent
 {
     public class EventSourceAttribute : ActionFilterAttribute
     {
